@@ -1,0 +1,98 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Gender {
+  MALE
+  FEMALE
+  OTHER
+}
+
+enum BillStatus {
+  PENDING
+  PAID
+  FAILED
+  CANCELLED
+}
+
+enum PaymentStatus {
+  CREATED
+  PAID
+  FAILED
+}
+
+model User {
+  id        String    @id @default(uuid())
+  name      String
+  email     String    @unique
+  password  String
+  patients  Patient[]
+  bills     Bill[]
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+}
+
+model Patient {
+  id          String   @id @default(uuid())
+  name        String
+  age         Int
+  gender      Gender
+  phone       String
+  email       String
+  address     String
+  createdById String
+  createdBy   User     @relation(fields: [createdById], references: [id])
+  bills       Bill[]
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([name])
+  @@index([gender])
+  @@index([createdById])
+}
+
+model Bill {
+  id                 String     @id @default(uuid())
+  patientId          String
+  patient            Patient    @relation(fields: [patientId], references: [id], onDelete: Restrict)
+  serviceDescription String
+  amount             Decimal    @db.Decimal(12, 2)
+  taxRate            Decimal    @db.Decimal(5, 2)
+  taxAmount          Decimal    @db.Decimal(12, 2)
+  total              Decimal    @db.Decimal(12, 2)
+  status             BillStatus @default(PENDING)
+  paidAt             DateTime?
+  createdById        String
+  createdBy          User       @relation(fields: [createdById], references: [id])
+  payments           Payment[]
+  createdAt          DateTime   @default(now())
+  updatedAt          DateTime   @updatedAt
+
+  @@index([status])
+  @@index([patientId])
+  @@index([createdById])
+  @@index([paidAt])
+}
+
+model Payment {
+  id                String        @id @default(uuid())
+  billId            String
+  bill              Bill          @relation(fields: [billId], references: [id], onDelete: Cascade)
+  razorpayOrderId   String        @unique
+  razorpayPaymentId String?       @unique
+  razorpaySignature String?
+  amount            Decimal       @db.Decimal(12, 2)
+  currency          String        @default("INR")
+  status            PaymentStatus @default(CREATED)
+  failureReason     String?
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime      @updatedAt
+
+  @@index([billId])
+  @@index([status])
+}

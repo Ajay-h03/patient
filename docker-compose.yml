@@ -1,0 +1,16 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: medicore-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: pms
+      POSTGRES_PASSWORD: pms_password
+      POSTGRES_DB: patient_management
+    ports:
+      - "5432:5432"
+    volumes:
+      - medicore_pg:/var/lib/postgresql/data
+
+volumes:
+  medicore_pg:
