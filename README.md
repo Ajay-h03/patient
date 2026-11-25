@@ -2,6 +2,10 @@
 
 MediCore is a patient management application with a React frontend, NestJS API, and PostgreSQL database.
 
+## Live demo
+
+[Open MediCore Patient Management System](https://patient-management-web-i3n4.onrender.com)
+
 ## Deploy a demo to Render
 
 [![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy?repo=https://github.com/Ajay-h03/patient)
